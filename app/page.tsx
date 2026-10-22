@@ -1,3 +1,4 @@
+import { UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -6,7 +7,10 @@ export default function Home() {
     <main className="flex min-h-screen items-center justify-center p-6">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>CITADEL (CIMS)</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            CITADEL (CIMS)
+            <UserButton />
+          </CardTitle>
           <CardDescription>
             Oak Signal inventory management for cadet units. Setup placeholder.
           </CardDescription>
