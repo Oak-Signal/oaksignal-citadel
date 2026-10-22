@@ -5,6 +5,7 @@ build/
 coverage/
 package-lock.json
 next-env.d.ts
+convex/_generated/
 specs/
 .specify/
 .github/
