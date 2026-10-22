@@ -1,11 +1,34 @@
 node_modules/
+/.pnp
+.pnp.*
+
+# build output
+.next/
+out/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# env files (keep the example)
 .env
 .env.*
+!.env.example
+
+# logs
 *.log
+npm-debug.log*
+
+# local tooling
+.vercel
 .venv/
 __pycache__/
+.convex/
+*.pem
 .DS_Store
 Thumbs.db
 
+# Spec Kit files and specs are kept local (not tracked)
 .specify/
 specs/
+.github/skills/speckit-*/
