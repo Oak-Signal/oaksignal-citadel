@@ -11,6 +11,7 @@
 import type * as access from "../access.js";
 import type * as audit from "../audit.js";
 import type * as categories from "../categories.js";
+import type * as files from "../files.js";
 import type * as items from "../items.js";
 import type * as lib_audit from "../lib/audit.js";
 import type * as lib_authz from "../lib/authz.js";
@@ -24,6 +25,7 @@ import type * as lib_validators from "../lib/validators.js";
 import type * as memberships from "../memberships.js";
 import type * as notifications from "../notifications.js";
 import type * as roles from "../roles.js";
+import type * as transactions from "../transactions.js";
 import type * as supportGrants from "../supportGrants.js";
 import type * as units from "../units.js";
 import type * as users from "../users.js";
@@ -38,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   access: typeof access;
   audit: typeof audit;
   categories: typeof categories;
+  files: typeof files;
   items: typeof items;
   "lib/audit": typeof lib_audit;
   "lib/authz": typeof lib_authz;
@@ -51,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   memberships: typeof memberships;
   notifications: typeof notifications;
   roles: typeof roles;
+  transactions: typeof transactions;
   supportGrants: typeof supportGrants;
   units: typeof units;
   users: typeof users;
