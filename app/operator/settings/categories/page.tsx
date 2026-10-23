@@ -44,6 +44,14 @@ const TYPE_LABELS: Record<AttributeDraft["type"], string> = {
   select: "Choice list",
 };
 
+const TYPE_HINTS: Record<AttributeDraft["type"], string> = {
+  text: "Free text, such as a model number or notes.",
+  number: "A numeric value, such as capacity or weight.",
+  boolean: "A simple yes or no answer.",
+  date: "A calendar date, such as an expiry or service date.",
+  select: "Pick one value from a list you define.",
+};
+
 function toDraft(def: Category["customAttributeDefs"][number]): AttributeDraft {
   return { ...def, options: (def.options ?? []).join(", ") };
 }
@@ -137,7 +145,8 @@ function CategoryDialog({
         <DialogHeader>
           <DialogTitle>{category ? "Edit category" : "Add category"}</DialogTitle>
           <DialogDescription>
-            Custom attributes add extra fields to the item form for every item in this category.
+            A category groups similar items, such as Radios or Uniforms. Every item you add must
+            belong to one category.
           </DialogDescription>
         </DialogHeader>
         <form
@@ -145,20 +154,44 @@ function CategoryDialog({
           className="flex flex-col gap-4"
           noValidate
         >
-          <FormField label="Category name" required error={errors.name}>
+          <FormField
+            label="Category name"
+            hint="Use a short, general name, for example Radios, Tents or First aid kits."
+            required
+            error={errors.name}
+          >
             {(props) => <Input {...props} value={name} onChange={(e) => setName(e.target.value)} />}
           </FormField>
 
           <fieldset className="flex flex-col gap-3">
-            <legend className="mb-1 text-sm font-medium">Custom attributes</legend>
+            <legend className="mb-1 text-sm font-medium">Custom attributes (optional)</legend>
+            <div className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
+              <p>
+                Custom attributes are extra details you want to record for every item in this
+                category. Each one becomes a field on the item form, and its value is saved with
+                the item.
+              </p>
+              <p className="mt-2">
+                Examples: for <strong>Radios</strong> add a <em>Frequency band</em> (Choice list:
+                VHF, UHF) and a <em>Last calibrated</em> (Date). For <strong>Uniforms</strong> add
+                a <em>Size</em> (Choice list) and a <em>Name tape attached</em> (Yes / no).
+              </p>
+              <p className="mt-2">
+                You can skip this if the standard item fields are enough. Changing attributes later
+                does not delete values already saved on items.
+              </p>
+            </div>
             {attributes.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No custom attributes.</p>
+              <p className="text-sm text-muted-foreground">
+                No custom attributes yet. Select &quot;Add attribute&quot; to create one.
+              </p>
             ) : null}
             {attributes.map((draft, index) => (
               <div key={index} className="flex flex-col gap-3 rounded-lg border p-3">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <FormField
                     label={`Attribute ${index + 1} label`}
+                    hint="The name people see on the item form, e.g. Frequency band."
                     required
                     error={errors[`${index}.label`]}
                   >
@@ -180,7 +213,7 @@ function CategoryDialog({
                   </FormField>
                   <FormField
                     label={`Attribute ${index + 1} key`}
-                    hint="Lowercase letters, digits, underscores."
+                    hint="Filled in from the label. Used internally; lowercase letters, digits and underscores only."
                     required
                     error={errors[`${index}.key`]}
                   >
@@ -192,7 +225,10 @@ function CategoryDialog({
                       />
                     )}
                   </FormField>
-                  <FormField label={`Attribute ${index + 1} type`}>
+                  <FormField
+                    label={`Attribute ${index + 1} type`}
+                    hint={TYPE_HINTS[draft.type]}
+                  >
                     {(props) => (
                       <NativeSelect
                         {...props}
@@ -212,7 +248,8 @@ function CategoryDialog({
                   {draft.type === "select" ? (
                     <FormField
                       label={`Attribute ${index + 1} options`}
-                      hint="Separate choices with commas."
+                      hint="Type the allowed choices separated by commas, e.g. VHF, UHF."
+                      required
                       error={errors[`${index}.options`]}
                     >
                       {(props) => (
@@ -233,7 +270,7 @@ function CategoryDialog({
                       checked={draft.required}
                       onChange={(e) => change(index, { required: e.target.checked })}
                     />
-                    Required
+                    Required when adding items
                   </label>
                   <Button
                     type="button"
@@ -361,7 +398,7 @@ export default function CategoriesPage() {
     <>
       <PageHeader
         title="Item categories"
-        description="Group items and define the extra details each category records."
+        description="Categories group similar items so they are easy to find and filter. Optionally, add custom attributes to record extra details for every item in a category, such as a size or calibration date."
         actions={
           <div className="flex gap-3">
             <Link
@@ -385,7 +422,7 @@ export default function CategoriesPage() {
         rows={categories}
         getRowId={(row) => row._id}
         emptyTitle="No categories yet"
-        emptyDescription="Add a category before creating items."
+        emptyDescription="Categories organise your catalogue, and every item needs one. Select Add category to create your first, for example Radios or Tents. Archiving a category hides it from new items without affecting existing ones."
       />
       {editing ? (
         <CategoryDialog

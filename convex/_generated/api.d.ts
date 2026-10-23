@@ -25,8 +25,8 @@ import type * as lib_validators from "../lib/validators.js";
 import type * as memberships from "../memberships.js";
 import type * as notifications from "../notifications.js";
 import type * as roles from "../roles.js";
-import type * as transactions from "../transactions.js";
 import type * as supportGrants from "../supportGrants.js";
+import type * as transactions from "../transactions.js";
 import type * as units from "../units.js";
 import type * as users from "../users.js";
 
@@ -54,8 +54,8 @@ declare const fullApi: ApiFromModules<{
   memberships: typeof memberships;
   notifications: typeof notifications;
   roles: typeof roles;
-  transactions: typeof transactions;
   supportGrants: typeof supportGrants;
+  transactions: typeof transactions;
   units: typeof units;
   users: typeof users;
 }>;
