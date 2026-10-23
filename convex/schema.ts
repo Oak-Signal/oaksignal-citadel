@@ -31,7 +31,9 @@ export default defineSchema({
     lastSignInAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_clerk_subject", ["clerkSubject"]),
+  })
+    .index("by_clerk_subject", ["clerkSubject"])
+    .index("by_email", ["email"]),
 
   units: defineTable({
     name: v.string(),
@@ -39,10 +41,13 @@ export default defineSchema({
     status: unitStatusValidator,
     settings: unitSettingsValidator,
     createdBy: v.id("users"),
+    // Idempotency key for provisioning: a repeated submission returns the original unit.
+    requestKey: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_identifier", ["identifier"])
+    .index("by_creator_and_requestKey", ["createdBy", "requestKey"])
     .index("by_status", ["status"]),
 
   memberships: defineTable({
@@ -78,7 +83,9 @@ export default defineSchema({
     verifiedByMembershipId: v.id("memberships"),
     reason: v.string(),
     expiresAt: v.number(),
-  }).index("by_unit", ["unitId"]),
+  })
+    .index("by_unit", ["unitId"])
+    .index("by_platform_admin", ["platformAdminId"]),
 
   // Append-only. Written only through appendAudit() in convex/lib/audit.ts.
   auditLog: defineTable({

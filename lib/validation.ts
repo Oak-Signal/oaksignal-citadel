@@ -49,6 +49,30 @@ export const unitSchema = z.object({
   identifier: trimmed("Unit identifier", 64),
 });
 
+export const inviteSchema = z.object({
+  email: emailSchema,
+  roles: z.array(roleKeySchema).min(1, "Choose at least one role."),
+});
+
+export const unitProvisionSchema = z.object({
+  name: trimmed("Unit name", 120),
+  identifier: z
+    .string()
+    .trim()
+    .min(1, "Identifier is required.")
+    .max(40, "Identifier must be at most 40 characters.")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Use lowercase letters, digits and single hyphens, for example sqn-1.",
+    ),
+  firstAdminEmail: emailSchema,
+  verificationNote: trimmed("Verification note"),
+});
+
+export const unitSettingsFormSchema = unitSettingsSchema.extend({
+  name: trimmed("Unit name", 120),
+});
+
 // Returns the first error message per field, ready to show beside form inputs.
 export function fieldErrors(error: z.ZodError): Record<string, string> {
   const result: Record<string, string> = {};

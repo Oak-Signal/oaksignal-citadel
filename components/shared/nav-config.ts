@@ -19,5 +19,8 @@ export const NAV_CONFIG: NavConfig = {
     { label: "Audit", href: "/operator/audit", permission: "audit.view" },
     { label: "Settings", href: "/operator/settings", permission: "unit.settings" },
   ],
-  platform: [{ label: "Units", href: "/platform" }],
+  platform: [
+    { label: "Units", href: "/platform" },
+    { label: "Provision a unit", href: "/platform/units/new" },
+  ],
 };

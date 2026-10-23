@@ -6,9 +6,8 @@ import { usePathname } from "next/navigation";
 import { MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { can } from "@/lib/permissions";
 import type { NavItem, Portal } from "@/lib/types";
-import { useGrants } from "@/components/shared/PermissionGate";
+import { useCan } from "@/components/shared/PermissionGate";
 
 const PORTAL_LABELS: Record<Portal, string> = {
   "self-service": "Self-service",
@@ -18,10 +17,16 @@ const PORTAL_LABELS: Record<Portal, string> = {
 
 function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const matches = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  // The most specific matching link is the current one, so "/operator" is not highlighted on
+  // "/operator/members".
+  const current = items
+    .filter((item) => matches(item.href))
+    .sort((a, b) => b.href.length - a.href.length)[0];
   return (
     <ul className="flex flex-col gap-1">
       {items.map((item) => {
-        const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const active = item === current;
         return (
           <li key={item.href}>
             <Link
@@ -54,8 +59,8 @@ export function AppShell({
   children: ReactNode;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const grants = useGrants();
-  const visibleItems = navItems.filter((item) => !item.permission || can(grants, item.permission));
+  const can = useCan();
+  const visibleItems = navItems.filter((item) => !item.permission || can(item.permission));
   const portalLabel = PORTAL_LABELS[portal];
 
   return (

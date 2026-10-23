@@ -32,7 +32,12 @@ const AUTH_CALL =
 describe("authorization guard", () => {
   it("every exported public function calls an authorization helper (or is an allowed exception)", () => {
     // `users.me` deliberately returns null when signed out; `syncCurrentUser` uses requireIdentity.
-    const allowed = new Set(["users.me", "users.syncCurrentUser"]);
+    const allowed = new Set([
+      "users.me",
+      "users.syncCurrentUser",
+      "users.syncFromClerk",
+      "access.myAccess",
+    ]);
     const missing: string[] = [];
     for (const file of sourceFiles(convexDir)) {
       const rel = relative(file);

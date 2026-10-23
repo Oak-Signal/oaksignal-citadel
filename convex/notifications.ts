@@ -51,6 +51,21 @@ export async function notifyByPermission(
   return created;
 }
 
+export async function notifyUser(
+  ctx: MutationCtx,
+  input: Omit<NotificationInput, "permission"> & { userId: Id<"users"> },
+): Promise<void> {
+  await ctx.db.insert("notifications", {
+    unitId: input.unitId,
+    userId: input.userId,
+    type: input.type,
+    title: input.title,
+    body: input.body,
+    link: input.link,
+    createdAt: Date.now(),
+  });
+}
+
 export const create = internalMutation({
   args: {
     unitId: v.id("units"),
