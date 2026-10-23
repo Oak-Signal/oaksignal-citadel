@@ -4,7 +4,8 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
+    # 0 turns off routine version-update PRs. Security-update PRs are not affected.
+    open-pull-requests-limit: 0
     groups:
       minor-and-patch:
         update-types: [minor, patch]
@@ -12,3 +13,4 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 0
