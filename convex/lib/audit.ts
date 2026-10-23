@@ -12,7 +12,7 @@
 // (for example permission denials) return a result instead of throwing; see
 // recordPermissionDenied() in authz.ts.
 import type { Id } from "../_generated/dataModel";
-import type { MutationCtx } from "../_generated/server";
+import type { MutationCtx, QueryCtx } from "../_generated/server";
 
 export type AuditEntry = {
   unitId?: Id<"units">;
@@ -27,4 +27,18 @@ export type AuditEntry = {
 
 export async function appendAudit(ctx: MutationCtx, entry: AuditEntry): Promise<Id<"auditLog">> {
   return await ctx.db.insert("auditLog", { ...entry, occurredAt: Date.now() });
+}
+
+// Most recent audit entries for one entity, newest first.
+export async function readEntityAudit(
+  ctx: QueryCtx,
+  entityType: string,
+  entityId: string,
+  limit: number,
+) {
+  return await ctx.db
+    .query("auditLog")
+    .withIndex("by_entity", (q) => q.eq("entityType", entityType).eq("entityId", entityId))
+    .order("desc")
+    .take(limit);
 }
