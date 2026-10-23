@@ -8,11 +8,18 @@
  * @module
  */
 
+import type * as audit from "../audit.js";
 import type * as lib_audit from "../lib/audit.js";
 import type * as lib_authz from "../lib/authz.js";
 import type * as lib_errors from "../lib/errors.js";
+import type * as lib_lifecycle from "../lib/lifecycle.js";
+import type * as lib_logger from "../lib/logger.js";
+import type * as lib_mutations from "../lib/mutations.js";
 import type * as lib_permissions from "../lib/permissions.js";
 import type * as lib_validators from "../lib/validators.js";
+import type * as notifications from "../notifications.js";
+import type * as units from "../units.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -21,11 +28,18 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  audit: typeof audit;
   "lib/audit": typeof lib_audit;
   "lib/authz": typeof lib_authz;
   "lib/errors": typeof lib_errors;
+  "lib/lifecycle": typeof lib_lifecycle;
+  "lib/logger": typeof lib_logger;
+  "lib/mutations": typeof lib_mutations;
   "lib/permissions": typeof lib_permissions;
   "lib/validators": typeof lib_validators;
+  notifications: typeof notifications;
+  units: typeof units;
+  users: typeof users;
 }>;
 
 /**
