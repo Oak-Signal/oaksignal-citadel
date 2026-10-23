@@ -3,7 +3,7 @@
 // in-memory database with `newTest()` and seeds only what it needs.
 import { convexTest } from "convex-test";
 import { expect } from "vitest";
-import type { Id } from "../../convex/_generated/dataModel";
+import type { Doc, Id } from "../../convex/_generated/dataModel";
 import schema from "../../convex/schema";
 import type { AppErrorCode } from "../../convex/lib/errors";
 import type { RoleKey, Permission } from "../../convex/lib/permissions";
@@ -84,6 +84,43 @@ export async function seedMembership(
       status: options.status ?? "active",
       createdAt: now,
       updatedAt: now,
+    });
+  });
+}
+
+export async function seedItem(
+  t: TestConvex,
+  unitId: Id<"units">,
+  userId: Id<"users">,
+  overrides: Partial<Doc<"items">> = {},
+): Promise<Id<"items">> {
+  return await t.run(async (ctx) => {
+    const now = Date.now();
+    const categoryId = await ctx.db.insert("categories", {
+      unitId,
+      name: `Category ${now}-${Math.random()}`,
+      customAttributeDefs: [],
+      archived: false,
+    });
+    return await ctx.db.insert("items", {
+      unitId,
+      name: "Item",
+      description: "",
+      categoryId,
+      trackingMode: "serialized",
+      quantityOnHand: 1,
+      quantityAvailable: 1,
+      status: "available",
+      condition: "good",
+      restricted: false,
+      attachments: [],
+      customAttributes: {},
+      notes: "",
+      archived: false,
+      createdBy: userId,
+      updatedBy: userId,
+      updatedAt: now,
+      ...overrides,
     });
   });
 }

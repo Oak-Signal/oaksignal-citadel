@@ -6,6 +6,7 @@ import {
   expectCode,
   identityFor,
   newTest,
+  seedItem,
   seedMembership,
   seedUnit,
   seedUser,
@@ -369,6 +370,7 @@ describe("memberships.deactivate", () => {
 
   it("keeps a deactivated member's outstanding assignments visible and accountable", async () => {
     const w = await world();
+    const itemId = await seedItem(w.t, w.unitA, w.adminA);
     await w.t.run(async (ctx) => {
       const now = Date.now();
       const transactionId = await ctx.db.insert("transactions", {
@@ -381,7 +383,7 @@ describe("memberships.deactivate", () => {
       });
       await ctx.db.insert("assignments", {
         unitId: w.unitA,
-        itemId: "item-1",
+        itemId,
         memberId: w.cadetMembership,
         quantityIssued: 1,
         quantityReturned: 0,

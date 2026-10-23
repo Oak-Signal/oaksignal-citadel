@@ -6,12 +6,16 @@
 // - Timestamps are epoch milliseconds (`v.number()`); Convex adds `_creationTime` automatically.
 // - Uniqueness is enforced in mutations by checking the matching index before inserting.
 // - `transactions`, `transactionLines`, and `auditLog` are append-only; corrections are new documents.
-// - `itemId` is a plain string until the `items` table is added with the catalogue; it then
-//   becomes `v.id("items")`.
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import {
   assignmentStatusValidator,
+  customAttributeDefValidator,
+  attachmentValidator,
+  customAttributeValueValidator,
+  itemConditionValidator,
+  itemStatusValidator,
+  trackingModeValidator,
   membershipStatusValidator,
   permissionValidator,
   roleKeyValidator,
@@ -103,6 +107,57 @@ export default defineSchema({
     .index("by_entity", ["entityType", "entityId"])
     .index("by_actor", ["actorId"]),
 
+  categories: defineTable({
+    unitId: v.id("units"),
+    name: v.string(),
+    customAttributeDefs: v.array(customAttributeDefValidator),
+    archived: v.boolean(),
+  })
+    .index("by_unit", ["unitId"])
+    .index("by_unit_and_name", ["unitId", "name"]),
+
+  items: defineTable({
+    unitId: v.id("units"),
+    name: v.string(),
+    description: v.string(),
+    categoryId: v.id("categories"),
+    trackingMode: trackingModeValidator,
+    sku: v.optional(v.string()),
+    assetTag: v.optional(v.string()),
+    serialNumber: v.optional(v.string()),
+    barcode: v.optional(v.string()),
+    quantityOnHand: v.number(),
+    quantityAvailable: v.number(),
+    status: itemStatusValidator,
+    condition: itemConditionValidator,
+    // Becomes v.id("locations") when the locations table is added (US7).
+    locationId: v.optional(v.string()),
+    currentAssigneeId: v.optional(v.id("memberships")),
+    restricted: v.boolean(),
+    minThreshold: v.optional(v.number()),
+    acquiredAt: v.optional(v.number()),
+    supplier: v.optional(v.string()),
+    imageStorageId: v.optional(v.id("_storage")),
+    attachments: v.array(attachmentValidator),
+    customAttributes: v.record(v.string(), customAttributeValueValidator),
+    notes: v.string(),
+    archived: v.boolean(),
+    createdBy: v.id("users"),
+    updatedBy: v.id("users"),
+    updatedAt: v.number(),
+  })
+    .index("by_unit", ["unitId"])
+    .index("by_unit_and_assetTag", ["unitId", "assetTag"])
+    .index("by_unit_and_category", ["unitId", "categoryId"])
+    .index("by_unit_and_location", ["unitId", "locationId"])
+    .index("by_unit_and_status", ["unitId", "status"])
+    .index("by_unit_and_assignee", ["unitId", "currentAssigneeId"])
+    .searchIndex("search_name", { searchField: "name", filterFields: ["unitId", "archived"] })
+    .searchIndex("search_assetTag", {
+      searchField: "assetTag",
+      filterFields: ["unitId", "archived"],
+    }),
+
   // Append-only inventory ledger. Corrections are new transactions.
   transactions: defineTable({
     unitId: v.id("units"),
@@ -123,7 +178,7 @@ export default defineSchema({
   transactionLines: defineTable({
     transactionId: v.id("transactions"),
     unitId: v.id("units"),
-    itemId: v.string(),
+    itemId: v.id("items"),
     quantity: v.number(),
     conditionBefore: v.optional(v.string()),
     conditionAfter: v.optional(v.string()),
@@ -138,7 +193,7 @@ export default defineSchema({
 
   assignments: defineTable({
     unitId: v.id("units"),
-    itemId: v.string(),
+    itemId: v.id("items"),
     memberId: v.id("memberships"),
     quantityIssued: v.number(),
     quantityReturned: v.number(),

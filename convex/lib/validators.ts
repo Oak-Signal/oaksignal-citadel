@@ -53,6 +53,41 @@ export const assignmentStatusValidator = v.union(
   v.literal("overdue"),
 );
 
+export const trackingModeValidator = v.union(v.literal("serialized"), v.literal("bulk"));
+
+export const ITEM_STATUSES = [
+  "available",
+  "issued",
+  "reserved",
+  "damaged",
+  "missing",
+  "unserviceable",
+  "maintenance",
+  "retired",
+] as const;
+export const itemStatusValidator = literalUnion(ITEM_STATUSES);
+
+export const ITEM_CONDITIONS = ["new", "good", "fair", "poor", "unserviceable"] as const;
+export const itemConditionValidator = literalUnion(ITEM_CONDITIONS);
+
+export const CUSTOM_ATTRIBUTE_TYPES = ["text", "number", "boolean", "date", "select"] as const;
+export const customAttributeDefValidator = v.object({
+  key: v.string(),
+  label: v.string(),
+  type: literalUnion(CUSTOM_ATTRIBUTE_TYPES),
+  required: v.boolean(),
+  options: v.optional(v.array(v.string())),
+});
+
+export const customAttributeValueValidator = v.union(v.string(), v.number(), v.boolean());
+
+export const attachmentValidator = v.object({
+  storageId: v.id("_storage"),
+  name: v.string(),
+  contentType: v.optional(v.string()),
+  size: v.optional(v.number()),
+});
+
 // Server-side input checks that Convex validators cannot express.
 export function requireText(value: string, field: string, max = MAX_TEXT_LENGTH): string {
   const trimmed = value.trim();
