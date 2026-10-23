@@ -2,7 +2,14 @@
 // convex/lib/validators.ts; the server remains the source of truth and re-validates.
 import { z } from "zod";
 import { PERMISSIONS, ROLE_KEYS } from "@/convex/lib/permissions";
-import { MAX_NOTE_LENGTH, MAX_REQUEST_KEY_LENGTH, MAX_TEXT_LENGTH } from "@/convex/lib/validators";
+import {
+  CUSTOM_ATTRIBUTE_TYPES,
+  ITEM_CONDITIONS,
+  ITEM_STATUSES,
+  MAX_NOTE_LENGTH,
+  MAX_REQUEST_KEY_LENGTH,
+  MAX_TEXT_LENGTH,
+} from "@/convex/lib/validators";
 
 const trimmed = (label: string, max = MAX_TEXT_LENGTH) =>
   z
@@ -71,6 +78,45 @@ export const unitProvisionSchema = z.object({
 
 export const unitSettingsFormSchema = unitSettingsSchema.extend({
   name: trimmed("Unit name", 120),
+});
+
+const optionalText = (label: string, max = 200) =>
+  z.string().trim().max(max, `${label} must be at most ${max} characters.`);
+
+export const itemFormSchema = z
+  .object({
+    name: trimmed("Name", 200),
+    categoryId: z.string().min(1, "Choose a category."),
+    trackingMode: z.enum(["serialized", "bulk"]),
+    condition: z.enum(ITEM_CONDITIONS),
+    status: z.enum(ITEM_STATUSES),
+    assetTag: optionalText("Asset tag", 100),
+    serialNumber: optionalText("Serial number", 100),
+    sku: optionalText("SKU", 100),
+    barcode: optionalText("Barcode", 100),
+    supplier: optionalText("Supplier"),
+    locationId: optionalText("Location"),
+    description: optionalText("Description", MAX_NOTE_LENGTH),
+    notes: optionalText("Notes", MAX_NOTE_LENGTH),
+    restricted: z.boolean(),
+    quantityOnHand: quantitySchema.optional(),
+    minThreshold: quantitySchema.optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.trackingMode === "bulk" && value.quantityOnHand === undefined) {
+      ctx.addIssue({ code: "custom", path: ["quantityOnHand"], message: "Enter the quantity on hand." });
+    }
+  });
+
+export const customAttributeDefSchema = z.object({
+  key: z
+    .string()
+    .trim()
+    .regex(/^[a-z][a-z0-9_]{0,39}$/, "Use lowercase letters, digits and underscores, starting with a letter."),
+  label: trimmed("Label", 100),
+  type: z.enum(CUSTOM_ATTRIBUTE_TYPES),
+  required: z.boolean(),
+  options: z.array(z.string()).optional(),
 });
 
 // Returns the first error message per field, ready to show beside form inputs.
