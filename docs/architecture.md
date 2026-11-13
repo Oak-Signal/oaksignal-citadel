@@ -19,7 +19,7 @@ Clerk authenticates the user, Convex receives the Clerk JWT, `requireUnitPermiss
 
 ## Portals
 
-`lib/types.ts` defines three portals (`self-service`, `operator`, `platform`). Each has its own navigation config in `components/shared/nav-config.ts`, rendered by `AppShell`; links are filtered by permission.
+`lib/types.ts` defines three portals (`self-service`, `operator`, `platform`). Each has its own navigation config in `components/shared/nav-config.ts`, rendered by `AppShell`; links are filtered by permission. Operator links carry a `group` (sidebar section and dashboard card), an optional `description`, optional `children` (sub-pages shown while their section is current), and `available: false` to hide a link until its page is built. The dashboards read the same config through `visibleNavItems` and `groupNavItems`, so a new page is added in one place.
 
 ## Development patterns
 

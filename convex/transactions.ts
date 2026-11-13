@@ -2,17 +2,13 @@
 // Each mutation writes the transaction, its line, the balance change, and the audit entry
 // together, so they commit or fail as one. Quantities are never edited outside the ledger.
 import { v } from "convex/values";
-import type { Doc } from "./_generated/dataModel";
-import { mutation } from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel";
+import { mutation, type MutationCtx } from "./_generated/server";
 import { appendAudit } from "./lib/audit";
 import { requireUnitPermission } from "./lib/authz";
 import { conflict, notFound, validation } from "./lib/errors";
 import { assertRequestKey, findTransactionByRequestKey } from "./lib/mutations";
-import {
-  MAX_NOTE_LENGTH,
-  itemConditionValidator,
-  requireText,
-} from "./lib/validators";
+import { MAX_NOTE_LENGTH, itemConditionValidator, requireText } from "./lib/validators";
 
 const MAX_QUANTITY = 1_000_000;
 const MAX_LINES = 50;
@@ -46,7 +42,9 @@ function assertBulkItem(item: Doc<"items"> | null, unitId: Doc<"items">["unitId"
   if (!item || item.unitId !== unitId) throw notFound("Item");
   if (item.archived) throw conflict("Restore this item before changing its stock.");
   if (item.trackingMode !== "bulk") {
-    throw validation("Stock quantities apply to bulk items. Serialized items always have a quantity of 1.");
+    throw validation(
+      "Stock quantities apply to bulk items. Serialized items always have a quantity of 1.",
+    );
   }
   return item;
 }
@@ -193,6 +191,28 @@ export const issue = mutation({
   },
   handler: async (ctx, args) => {
     const { user, unit } = await requireUnitPermission(ctx, args.unitId, "issuance.perform");
+    return await issueToMember(ctx, { ...args, user, unit });
+  },
+});
+
+export type IssueInput = {
+  unitId: Id<"units">;
+  memberId: Id<"memberships">;
+  lines: { itemId: Id<"items">; quantity: number; condition?: Doc<"items">["condition"] }[];
+  expectedReturnAt?: number;
+  note?: string;
+  requestKey: string;
+  user: Doc<"users">;
+  unit: Doc<"units">;
+  // Set when the issue fulfils an approved request.
+  requestId?: string;
+  authorizedBy?: Id<"users">;
+};
+
+// Shared by `issue` and `requests.fulfil`. Callers must already have checked `issuance.perform`.
+export async function issueToMember(ctx: MutationCtx, args: IssueInput) {
+  {
+    const { user, unit } = args;
     const requestKey = assertRequestKey(args.requestKey);
     const replay = await findTransactionByRequestKey(ctx, args.unitId, requestKey);
     if (replay) return { transactionId: replay._id, replayed: true };
@@ -222,6 +242,8 @@ export const issue = mutation({
       type: "issue",
       memberId: args.memberId,
       performedBy: user._id,
+      authorizedBy: args.authorizedBy,
+      requestId: args.requestId,
       requestKey,
       reason: note,
       occurredAt: now,
@@ -307,8 +329,8 @@ export const issue = mutation({
       });
     }
     return { transactionId, replayed: false };
-  },
-});
+  }
+}
 
 // Records returns against open assignments. Each line names an assignment, the quantity coming
 // back, the condition, and an outcome. Anything other than `available` is a discrepancy: it

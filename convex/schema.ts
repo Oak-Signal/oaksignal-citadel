@@ -13,8 +13,12 @@ import {
   customAttributeDefValidator,
   attachmentValidator,
   customAttributeValueValidator,
+  incidentStatusValidator,
+  incidentTypeValidator,
   itemConditionValidator,
   itemStatusValidator,
+  requestLineStatusValidator,
+  requestStatusValidator,
   trackingModeValidator,
   membershipStatusValidator,
   permissionValidator,
@@ -203,6 +207,46 @@ export default defineSchema({
     issueTransactionId: v.id("transactions"),
   })
     .index("by_unit_and_member", ["unitId", "memberId"])
+    .index("by_unit_and_status", ["unitId", "status"])
+    .index("by_item", ["itemId"]),
+
+  // Cadet equipment requests. `requesterId` is the requester's membership so fulfilment can issue
+  // to them directly.
+  requests: defineTable({
+    unitId: v.id("units"),
+    requesterId: v.id("memberships"),
+    status: requestStatusValidator,
+    requiresRestrictedApproval: v.boolean(),
+    decidedBy: v.optional(v.id("users")),
+    decisionNote: v.optional(v.string()),
+    note: v.optional(v.string()),
+    requestKey: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_unit_and_status", ["unitId", "status"])
+    .index("by_unit_and_requester", ["unitId", "requesterId"])
+    .index("by_unit_and_requestKey", ["unitId", "requestKey"]),
+
+  requestLines: defineTable({
+    unitId: v.id("units"),
+    requestId: v.id("requests"),
+    itemId: v.id("items"),
+    quantity: v.number(),
+    status: requestLineStatusValidator,
+    fulfilledQuantity: v.number(),
+  }).index("by_request", ["requestId"]),
+
+  incidents: defineTable({
+    unitId: v.id("units"),
+    itemId: v.id("items"),
+    type: incidentTypeValidator,
+    reportedBy: v.id("users"),
+    description: v.string(),
+    status: incidentStatusValidator,
+    resolvedBy: v.optional(v.id("users")),
+    occurredAt: v.number(),
+  })
     .index("by_unit_and_status", ["unitId", "status"])
     .index("by_item", ["itemId"]),
 

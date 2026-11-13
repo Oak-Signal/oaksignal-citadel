@@ -1,13 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { useAccess } from "@/components/shared/AccessProvider";
 import { PageHeader } from "@/components/shared/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionLinks } from "@/components/shared/SectionLinks";
+import { StatTile } from "@/components/shared/StatTile";
+import { NAV_CONFIG } from "@/components/shared/nav-config";
+import { buttonVariants } from "@/components/ui/button";
 import { roleLabel } from "@/lib/permissions";
 
 export default function SelfServicePage() {
   const { activeUnit } = useAccess();
+  const unitId = activeUnit?.unitId;
+  const equipment = useQuery(api.selfService.myAssignments, unitId ? { unitId } : "skip");
+  const requests = useQuery(api.selfService.myRequests, unitId ? { unitId } : "skip");
+  const links = NAV_CONFIG["self-service"].filter((item) => item.description);
+
   return (
     <>
       <PageHeader
@@ -17,41 +27,34 @@ export default function SelfServicePage() {
             ? `${activeUnit.name} · ${activeUnit.roles.map(roleLabel).join(", ")}`
             : undefined
         }
+        actions={
+          <Link href="/self-service/requests" className={buttonVariants({ variant: "default" })}>
+            Request equipment
+          </Link>
+        }
       />
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <h2>My equipment</h2>
-            </CardTitle>
-            <CardDescription>Items issued to you will appear here.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link
-              href="/self-service/equipment"
-              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-            >
-              View my equipment
-            </Link>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <h2>My requests</h2>
-            </CardTitle>
-            <CardDescription>Request equipment and follow its approval.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link
-              href="/self-service/requests"
-              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-            >
-              View my requests
-            </Link>
-          </CardContent>
-        </Card>
+      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+        <StatTile label="Items on loan" value={equipment?.length} href="/self-service/equipment" />
+        <StatTile
+          label="Overdue"
+          value={equipment?.filter((row) => row.overdue).length}
+          href="/self-service/equipment"
+          tone="alert"
+        />
+        <StatTile
+          label="Open requests"
+          value={
+            requests?.filter(
+              (r) =>
+                r.status === "submitted" ||
+                r.status === "approved" ||
+                r.status === "partially_fulfilled",
+            ).length
+          }
+          href="/self-service/requests"
+        />
       </div>
+      <SectionLinks sections={[{ items: links }]} />
     </>
   );
 }

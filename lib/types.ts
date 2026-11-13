@@ -10,6 +10,14 @@ export type NavItem = {
   href: string;
   // Permission needed to see the link. Omit for links every active member can use.
   permission?: import("@/convex/lib/permissions").Permission;
+  // Sidebar section. Items without a group are listed first, under no heading.
+  group?: string;
+  // One line shown on the dashboard next to the link.
+  description?: string;
+  // Set to false while the page is not built yet; the link is hidden everywhere.
+  available?: boolean;
+  // Sub-pages, listed under this item while it is the current section.
+  children?: NavItem[];
 };
 
 export type NavConfig = Record<Portal, NavItem[]>;

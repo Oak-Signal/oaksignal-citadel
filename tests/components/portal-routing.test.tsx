@@ -146,12 +146,43 @@ describe("role-aware navigation", () => {
 
   it("shows a Unit Administrator the management links", () => {
     const labels = nav(access({ units: [unit(unitA, "A", "unit_admin")] }));
-    expect(labels).toEqual(expect.arrayContaining(["Settings", "Audit", "Members"]));
+    expect(labels).toEqual(expect.arrayContaining(["Settings", "Members", "Categories"]));
+  });
+
+  it("hides links whose pages are not built yet, even for an administrator", () => {
+    const labels = nav(access({ units: [unit(unitA, "A", "unit_admin")] }));
+    expect(labels).not.toContain("Reports");
+    expect(labels).not.toContain("Audit");
+    expect(labels).not.toContain("Locations");
   });
 
   it("follows the unit's role overrides sent by the server", () => {
-    const labels = nav(access({ units: [unit(unitA, "A", "supply_cadet", ["reports.view"])] }));
-    expect(labels).toContain("Reports");
+    const labels = nav(access({ units: [unit(unitA, "A", "supply_cadet", ["requests.approve"])] }));
+    expect(labels).toContain("Requests");
+  });
+
+  it("groups links under headings and omits groups with no visible links", () => {
+    nav(access({ units: [unit(unitA, "A", "supply_cadet")] }));
+    const lists = screen.getAllByRole("navigation")[0].querySelectorAll("ul[aria-labelledby]");
+    const headings = [...lists].map((list) => list.getAttribute("aria-labelledby"));
+    expect(headings.length).toBeGreaterThan(0);
+    const navEl = screen.getAllByRole("navigation")[0];
+    expect(navEl).toHaveTextContent("Inventory");
+    expect(navEl).toHaveTextContent("Issuance");
+    expect(navEl).not.toHaveTextContent("Administration");
+  });
+
+  it("lists sub-pages only while their section is current", () => {
+    pathname = "/operator/issuance";
+    const view = access({ units: [unit(unitA, "A", "unit_admin")] });
+    renderWith(
+      view,
+      <AppShell portal="operator" navItems={NAV_CONFIG.operator} accountMenu={null}>
+        content
+      </AppShell>,
+    );
+    expect(screen.getAllByRole("navigation")[0]).toHaveTextContent("Returns");
+    expect(screen.getAllByRole("navigation")[0]).not.toHaveTextContent("Roles");
   });
 
   it("marks only the most specific link as the current page", () => {

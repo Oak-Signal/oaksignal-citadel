@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MenuIcon } from "lucide-react";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import type { NavItem, Portal } from "@/lib/types";
 import { useCan } from "@/components/shared/PermissionGate";
+import { groupNavItems, visibleNavItems, type NavSection } from "@/components/shared/nav-config";
 
 const PORTAL_LABELS: Record<Portal, string> = {
   "self-service": "Self-service",
@@ -39,32 +40,66 @@ function BrandTagline() {
   );
 }
 
-function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
+function NavLinks({ sections, onNavigate }: { sections: NavSection[]; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const baseId = useId();
   const matches = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const all = sections.flatMap((section) =>
+    section.items.flatMap((item) => [item, ...(item.children ?? [])]),
+  );
   // The most specific matching link is the current one, so "/operator" is not highlighted on
   // "/operator/members".
-  const current = items
+  const current = all
     .filter((item) => matches(item.href))
     .sort((a, b) => b.href.length - a.href.length)[0];
+
+  function renderLink(item: NavItem, nested = false) {
+    const active = item === current;
+    return (
+      <li key={item.href}>
+        <Link
+          href={item.href}
+          onClick={onNavigate}
+          aria-current={active ? "page" : undefined}
+          className={`block rounded-lg border-l-4 border-transparent py-2 pr-3 text-sm font-medium text-sidebar-foreground outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-sidebar-ring/60 aria-[current=page]:border-signal aria-[current=page]:bg-sidebar-accent aria-[current=page]:text-sidebar-accent-foreground ${nested ? "pl-7" : "pl-3"}`}
+        >
+          {item.label}
+        </Link>
+      </li>
+    );
+  }
+
   return (
-    <ul className="flex flex-col gap-1">
-      {items.map((item) => {
-        const active = item === current;
+    <div className="flex flex-col gap-5">
+      {sections.map((section, index) => {
+        const headingId = `${baseId}-${index}`;
         return (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              className="block rounded-lg border-l-4 border-transparent px-3 py-2 text-sm font-medium text-sidebar-foreground outline-none hover:bg-accent focus-visible:ring-3 focus-visible:ring-sidebar-ring/60 aria-[current=page]:border-signal aria-[current=page]:bg-sidebar-accent aria-[current=page]:text-sidebar-accent-foreground"
+          <div key={section.title ?? "top"}>
+            {section.title ? (
+              <p
+                id={headingId}
+                className="mb-1 px-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase"
+              >
+                {section.title}
+              </p>
+            ) : null}
+            <ul
+              className="flex flex-col gap-1"
+              aria-labelledby={section.title ? headingId : undefined}
             >
-              {item.label}
-            </Link>
-          </li>
+              {section.items.flatMap((item) => {
+                const open =
+                  item === current || (item.children ?? []).some((child) => child === current);
+                return [
+                  renderLink(item),
+                  ...(open ? (item.children ?? []).map((child) => renderLink(child, true)) : []),
+                ];
+              })}
+            </ul>
+          </div>
         );
       })}
-    </ul>
+    </div>
   );
 }
 
@@ -84,7 +119,7 @@ export function AppShell({
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const can = useCan();
-  const visibleItems = navItems.filter((item) => !item.permission || can(item.permission));
+  const sections = groupNavItems(visibleNavItems(navItems, can));
   const portalLabel = PORTAL_LABELS[portal];
 
   return (
@@ -106,7 +141,7 @@ export function AppShell({
           </p>
         </div>
         <nav aria-label={`${portalLabel} navigation`}>
-          <NavLinks items={visibleItems} />
+          <NavLinks sections={sections} />
         </nav>
       </aside>
 
@@ -135,7 +170,7 @@ export function AppShell({
               <BrandTagline />
             </SheetHeader>
             <nav aria-label={`${portalLabel} navigation`} className="px-4">
-              <NavLinks items={visibleItems} onNavigate={() => setDrawerOpen(false)} />
+              <NavLinks sections={sections} onNavigate={() => setDrawerOpen(false)} />
             </nav>
           </SheetContent>
         </Sheet>

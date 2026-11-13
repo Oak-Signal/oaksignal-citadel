@@ -53,6 +53,35 @@ export const assignmentStatusValidator = v.union(
   v.literal("overdue"),
 );
 
+export const REQUEST_STATUSES = [
+  "submitted",
+  "approved",
+  "rejected",
+  "partially_fulfilled",
+  "fulfilled",
+  "cancelled",
+] as const;
+export const requestStatusValidator = literalUnion(REQUEST_STATUSES);
+
+export const REQUEST_LINE_STATUSES = ["pending", "approved", "rejected", "fulfilled"] as const;
+export const requestLineStatusValidator = literalUnion(REQUEST_LINE_STATUSES);
+
+export const INCIDENT_TYPES = [
+  "damage",
+  "loss",
+  "inspection",
+  "repair",
+  "clearance",
+  "disposal",
+] as const;
+export const incidentTypeValidator = literalUnion(INCIDENT_TYPES);
+
+export const incidentStatusValidator = v.union(
+  v.literal("open"),
+  v.literal("in_progress"),
+  v.literal("resolved"),
+);
+
 export const trackingModeValidator = v.union(v.literal("serialized"), v.literal("bulk"));
 
 export const ITEM_STATUSES = [
