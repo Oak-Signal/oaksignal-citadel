@@ -39,6 +39,8 @@ const ACTION_LABELS: Record<string, string> = {
   "item.attachment.remove": "Attachment removed",
   "stock.receive": "Stock received",
   "stock.adjust": "Quantity adjusted",
+  "item.issue": "Issued to a member",
+  "item.return": "Returned by a member",
 };
 
 function FilesCard({

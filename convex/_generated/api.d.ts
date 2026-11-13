@@ -9,6 +9,7 @@
  */
 
 import type * as access from "../access.js";
+import type * as assignments from "../assignments.js";
 import type * as audit from "../audit.js";
 import type * as categories from "../categories.js";
 import type * as files from "../files.js";
@@ -25,6 +26,7 @@ import type * as lib_validators from "../lib/validators.js";
 import type * as memberships from "../memberships.js";
 import type * as notifications from "../notifications.js";
 import type * as roles from "../roles.js";
+import type * as selfService from "../selfService.js";
 import type * as supportGrants from "../supportGrants.js";
 import type * as transactions from "../transactions.js";
 import type * as units from "../units.js";
@@ -38,6 +40,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   access: typeof access;
+  assignments: typeof assignments;
   audit: typeof audit;
   categories: typeof categories;
   files: typeof files;
@@ -54,6 +57,7 @@ declare const fullApi: ApiFromModules<{
   memberships: typeof memberships;
   notifications: typeof notifications;
   roles: typeof roles;
+  selfService: typeof selfService;
   supportGrants: typeof supportGrants;
   transactions: typeof transactions;
   units: typeof units;

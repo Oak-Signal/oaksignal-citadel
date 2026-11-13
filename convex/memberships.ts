@@ -226,3 +226,19 @@ export const list = query({
     return { ...result, page };
   },
 });
+
+export const get = query({
+  args: { unitId: v.id("units"), membershipId: v.id("memberships") },
+  handler: async (ctx, { unitId, membershipId }) => {
+    await requireUnitPermission(ctx, unitId, "members.viewAssignments");
+    const membership = await ctx.db.get(membershipId);
+    if (!membership || membership.unitId !== unitId) return null;
+    const profile = await ctx.db.get(membership.userId);
+    return {
+      membershipId: membership._id,
+      displayName: profile?.displayName ?? "Unknown",
+      status: membership.status,
+      roles: membership.roles,
+    };
+  },
+});

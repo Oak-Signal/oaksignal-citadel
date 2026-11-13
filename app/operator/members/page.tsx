@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useMutation, usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -149,7 +150,21 @@ export default function MembersPage() {
 
   const rows = results as MemberRow[];
   const columns: Column<MemberRow>[] = [
-    { key: "name", header: "Name", cell: (row) => row.displayName },
+    {
+      key: "name",
+      header: "Name",
+      cell: (row) =>
+        can("members.viewAssignments") ? (
+          <Link
+            href={`/operator/members/${row.membershipId}`}
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            {row.displayName}
+          </Link>
+        ) : (
+          row.displayName
+        ),
+    },
     ...(canManage
       ? [{ key: "email", header: "Email", cell: (row: MemberRow) => row.email ?? "" }]
       : []),
