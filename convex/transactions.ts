@@ -171,6 +171,121 @@ export const adjustStock = mutation({
   },
 });
 
+// Past transactions are never edited (FR-027). A correction is a new `correction` transaction
+// that points at the original and moves stock by the difference between what was recorded and
+// what should have been. `correctedQuantity` is the quantity the original should have recorded
+// (signed for an adjustment). Earlier corrections of the same transaction are taken into account.
+export const correct = mutation({
+  args: {
+    unitId: v.id("units"),
+    transactionId: v.id("transactions"),
+    correctedQuantity: v.number(),
+    reason: v.string(),
+    requestKey: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const { user } = await requireUnitPermission(ctx, args.unitId, "inventory.adjust");
+    const requestKey = assertRequestKey(args.requestKey);
+    const replay = await findTransactionByRequestKey(ctx, args.unitId, requestKey);
+    if (replay) return { transactionId: replay._id, replayed: true };
+
+    const original = await ctx.db.get(args.transactionId);
+    if (!original || original.unitId !== args.unitId) throw notFound("Transaction");
+    if (original.type !== "receive" && original.type !== "adjust") {
+      throw validation(
+        "Only stock receipts and adjustments can be corrected here. Record a return or a new adjustment for other changes.",
+      );
+    }
+    const reason = requireText(args.reason, "Reason", MAX_NOTE_LENGTH);
+    const minimum = original.type === "receive" ? 0 : -MAX_QUANTITY;
+    if (
+      !Number.isInteger(args.correctedQuantity) ||
+      args.correctedQuantity < minimum ||
+      args.correctedQuantity > MAX_QUANTITY
+    ) {
+      throw validation("Enter the corrected quantity as a whole number.");
+    }
+
+    const originalLines = await ctx.db
+      .query("transactionLines")
+      .withIndex("by_transaction", (q) => q.eq("transactionId", original._id))
+      .take(2);
+    if (originalLines.length !== 1) throw validation("This transaction cannot be corrected.");
+    const line = originalLines[0];
+
+    const priorCorrections = await ctx.db
+      .query("transactions")
+      .withIndex("by_unit_and_corrects", (q) =>
+        q.eq("unitId", args.unitId).eq("correctsTransactionId", original._id),
+      )
+      .take(200);
+    let effective = line.quantity;
+    for (const prior of priorCorrections) {
+      const priorLines = await ctx.db
+        .query("transactionLines")
+        .withIndex("by_transaction", (q) => q.eq("transactionId", prior._id))
+        .take(2);
+      effective += priorLines.reduce((sum, priorLine) => sum + priorLine.quantity, 0);
+    }
+    const difference = args.correctedQuantity - effective;
+    if (difference === 0) throw validation("That is already the recorded quantity.");
+
+    const item = assertBulkItem(await ctx.db.get(line.itemId), args.unitId);
+    const quantityOnHand = item.quantityOnHand + difference;
+    const quantityAvailable = item.quantityAvailable + difference;
+    if (quantityOnHand < 0) throw validation("Quantity on hand cannot go below zero.");
+    if (quantityAvailable < 0) {
+      throw conflict("Part of this stock is issued. Return it before reducing the quantity.");
+    }
+
+    const now = Date.now();
+    const transactionId = await ctx.db.insert("transactions", {
+      unitId: args.unitId,
+      type: "correction",
+      performedBy: user._id,
+      authorizedBy: user._id,
+      correctsTransactionId: original._id,
+      requestKey,
+      reason,
+      occurredAt: now,
+    });
+    await ctx.db.insert("transactionLines", {
+      transactionId,
+      unitId: args.unitId,
+      itemId: item._id,
+      quantity: difference,
+      note: reason,
+    });
+    await ctx.db.patch(item._id, {
+      quantityOnHand,
+      quantityAvailable,
+      updatedBy: user._id,
+      updatedAt: now,
+    });
+    await appendAudit(ctx, {
+      unitId: args.unitId,
+      actorId: user._id,
+      action: "transaction.correct",
+      entityType: "transactions",
+      entityId: original._id,
+      before: {
+        recordedQuantity: effective,
+        quantityOnHand: item.quantityOnHand,
+        quantityAvailable: item.quantityAvailable,
+      },
+      after: {
+        recordedQuantity: args.correctedQuantity,
+        quantityOnHand,
+        quantityAvailable,
+        correctionTransactionId: transactionId,
+        itemId: item._id,
+      },
+      reason,
+    });
+    return { transactionId, replayed: false };
+  },
+});
+
 // Issues one or more items to an active member. Every check runs before the first write is
 // visible: a thrown error rolls the whole mutation back, so a multi-line issue is all or nothing.
 // Convex serializes conflicting mutations, so two operators issuing the last unit cannot both win.

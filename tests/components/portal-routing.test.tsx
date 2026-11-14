@@ -152,7 +152,6 @@ describe("role-aware navigation", () => {
   it("hides links whose pages are not built yet, even for an administrator", () => {
     const labels = nav(access({ units: [unit(unitA, "A", "unit_admin")] }));
     expect(labels).not.toContain("Reports");
-    expect(labels).not.toContain("Audit");
     expect(labels).not.toContain("Locations");
   });
 

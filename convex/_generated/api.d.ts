@@ -12,6 +12,7 @@ import type * as access from "../access.js";
 import type * as assignments from "../assignments.js";
 import type * as audit from "../audit.js";
 import type * as categories from "../categories.js";
+import type * as crons from "../crons.js";
 import type * as files from "../files.js";
 import type * as incidents from "../incidents.js";
 import type * as items from "../items.js";
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   assignments: typeof assignments;
   audit: typeof audit;
   categories: typeof categories;
+  crons: typeof crons;
   files: typeof files;
   incidents: typeof incidents;
   items: typeof items;
