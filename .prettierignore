@@ -9,3 +9,5 @@ convex/_generated/
 specs/
 .specify/
 .github/
+test-results/
+playwright-report/

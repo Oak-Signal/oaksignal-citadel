@@ -32,3 +32,7 @@ Thumbs.db
 .specify/
 specs/
 .github/skills/speckit-*/
+
+# Playwright output
+test-results/
+playwright-report/

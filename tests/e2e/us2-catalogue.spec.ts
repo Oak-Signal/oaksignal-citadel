@@ -37,7 +37,10 @@ test.describe("catalogue flow (needs Clerk test users)", () => {
 
     await page.getByText("RAD-001").click();
     await page.getByRole("button", { name: "Archive" }).click();
-    await page.getByRole("button", { name: /confirm|archive/i }).last().click();
+    await page
+      .getByRole("button", { name: /confirm|archive/i })
+      .last()
+      .click();
 
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);

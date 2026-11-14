@@ -104,7 +104,11 @@ export const itemFormSchema = z
   })
   .superRefine((value, ctx) => {
     if (value.trackingMode === "bulk" && value.quantityOnHand === undefined) {
-      ctx.addIssue({ code: "custom", path: ["quantityOnHand"], message: "Enter the quantity on hand." });
+      ctx.addIssue({
+        code: "custom",
+        path: ["quantityOnHand"],
+        message: "Enter the quantity on hand.",
+      });
     }
   });
 
@@ -112,7 +116,10 @@ export const customAttributeDefSchema = z.object({
   key: z
     .string()
     .trim()
-    .regex(/^[a-z][a-z0-9_]{0,39}$/, "Use lowercase letters, digits and underscores, starting with a letter."),
+    .regex(
+      /^[a-z][a-z0-9_]{0,39}$/,
+      "Use lowercase letters, digits and underscores, starting with a letter.",
+    ),
   label: trimmed("Label", 100),
   type: z.enum(CUSTOM_ATTRIBUTE_TYPES),
   required: z.boolean(),

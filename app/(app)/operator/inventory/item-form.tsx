@@ -392,7 +392,9 @@ export function ItemForm({
                   ) : (
                     <Input
                       {...props}
-                      type={def.type === "number" ? "number" : def.type === "date" ? "date" : "text"}
+                      type={
+                        def.type === "number" ? "number" : def.type === "date" ? "date" : "text"
+                      }
                       value={value === undefined ? "" : String(value)}
                       onChange={(e) =>
                         def.type === "number" && e.target.value !== ""

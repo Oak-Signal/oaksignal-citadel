@@ -1,7 +1,15 @@
 // Contract tests for received stock, adjustments, and item file uploads (US2, T100, T101).
 import { describe, expect, it } from "vitest";
 import { api } from "../../convex/_generated/api";
-import { expectCode, identityFor, newTest, seedItem, seedMembership, seedUnit, seedUser } from "./setup";
+import {
+  expectCode,
+  identityFor,
+  newTest,
+  seedItem,
+  seedMembership,
+  seedUnit,
+  seedUser,
+} from "./setup";
 
 async function world() {
   const t = newTest();
@@ -147,7 +155,11 @@ describe("files", () => {
       ctx.storage.store(new Blob(["x"], { type: "application/x-msdownload" })),
     );
     await expectCode(
-      w.asAdmin.mutation(api.files.addAttachment, { itemId: w.serial, storageId: exe, name: "a.exe" }),
+      w.asAdmin.mutation(api.files.addAttachment, {
+        itemId: w.serial,
+        storageId: exe,
+        name: "a.exe",
+      }),
       "VALIDATION",
     );
     const audits = await w.t.run(async (ctx) => ctx.db.query("auditLog").collect());
@@ -160,7 +172,11 @@ describe("files", () => {
       ctx.storage.store(new Blob(["x"], { type: "application/pdf" })),
     );
     await expectCode(
-      w.asViewer.mutation(api.files.addAttachment, { itemId: w.serial, storageId: pdf, name: "m.pdf" }),
+      w.asViewer.mutation(api.files.addAttachment, {
+        itemId: w.serial,
+        storageId: pdf,
+        name: "m.pdf",
+      }),
       "FORBIDDEN",
     );
     await w.asAdmin.mutation(api.files.addAttachment, {
@@ -168,8 +184,12 @@ describe("files", () => {
       storageId: pdf,
       name: "manual.pdf",
     });
-    expect((await w.asAdmin.query(api.items.get, { itemId: w.serial }))?.attachments).toHaveLength(1);
+    expect((await w.asAdmin.query(api.items.get, { itemId: w.serial }))?.attachments).toHaveLength(
+      1,
+    );
     await w.asAdmin.mutation(api.files.removeAttachment, { itemId: w.serial, storageId: pdf });
-    expect((await w.asAdmin.query(api.items.get, { itemId: w.serial }))?.attachments).toHaveLength(0);
+    expect((await w.asAdmin.query(api.items.get, { itemId: w.serial }))?.attachments).toHaveLength(
+      0,
+    );
   });
 });

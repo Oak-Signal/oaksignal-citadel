@@ -36,10 +36,7 @@ export default function OperatorDashboard() {
   );
 
   const canSeeIncidents = can("maintenance.manage");
-  const incidents = useQuery(
-    api.incidents.list,
-    unitId && canSeeIncidents ? { unitId } : "skip",
-  );
+  const incidents = useQuery(api.incidents.list, unitId && canSeeIncidents ? { unitId } : "skip");
 
   const actions = QUICK_ACTIONS.filter((action) => can(action.permission));
   const sections = groupNavItems(visibleNavItems(NAV_CONFIG.operator, can)).filter(

@@ -168,13 +168,13 @@ function CategoryDialog({
             <div className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
               <p>
                 Custom attributes are extra details you want to record for every item in this
-                category. Each one becomes a field on the item form, and its value is saved with
-                the item.
+                category. Each one becomes a field on the item form, and its value is saved with the
+                item.
               </p>
               <p className="mt-2">
                 Examples: for <strong>Radios</strong> add a <em>Frequency band</em> (Choice list:
-                VHF, UHF) and a <em>Last calibrated</em> (Date). For <strong>Uniforms</strong> add
-                a <em>Size</em> (Choice list) and a <em>Name tape attached</em> (Yes / no).
+                VHF, UHF) and a <em>Last calibrated</em> (Date). For <strong>Uniforms</strong> add a{" "}
+                <em>Size</em> (Choice list) and a <em>Name tape attached</em> (Yes / no).
               </p>
               <p className="mt-2">
                 You can skip this if the standard item fields are enough. Changing attributes later
@@ -225,10 +225,7 @@ function CategoryDialog({
                       />
                     )}
                   </FormField>
-                  <FormField
-                    label={`Attribute ${index + 1} type`}
-                    hint={TYPE_HINTS[draft.type]}
-                  >
+                  <FormField label={`Attribute ${index + 1} type`} hint={TYPE_HINTS[draft.type]}>
                     {(props) => (
                       <NativeSelect
                         {...props}

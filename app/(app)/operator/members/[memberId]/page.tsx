@@ -36,7 +36,10 @@ export default function MemberAssignmentsPage() {
   if (member === undefined || rows === undefined) return <Loading label="Loading member..." />;
   if (member === null) {
     return (
-      <EmptyState title="Member not found" description="This member is not part of the active unit." />
+      <EmptyState
+        title="Member not found"
+        description="This member is not part of the active unit."
+      />
     );
   }
 

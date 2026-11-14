@@ -134,10 +134,7 @@ describe("items.create / update / archive", () => {
     const item = await w.asAdmin.query(api.items.get, { itemId: id });
     expect(item).toMatchObject({ quantityOnHand: 1, quantityAvailable: 1 });
     await expectCode(
-      w.asAdmin.mutation(
-        api.items.create,
-        serialized(w, { assetTag: "AT-2", quantityOnHand: 5 }),
-      ),
+      w.asAdmin.mutation(api.items.create, serialized(w, { assetTag: "AT-2", quantityOnHand: 5 })),
       "VALIDATION",
     );
   });
@@ -153,7 +150,11 @@ describe("items.create / update / archive", () => {
       w.asAdmin.mutation(api.items.create, { ...bulk, quantityOnHand: 5, quantityAvailable: -1 }),
       "VALIDATION",
     );
-    await w.asAdmin.mutation(api.items.create, { ...bulk, quantityOnHand: 5, quantityAvailable: 5 });
+    await w.asAdmin.mutation(api.items.create, {
+      ...bulk,
+      quantityOnHand: 5,
+      quantityAvailable: 5,
+    });
   });
 
   it("audits create and update with before and after values", async () => {

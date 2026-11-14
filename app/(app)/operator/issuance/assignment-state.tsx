@@ -26,7 +26,9 @@ const STATE_LABELS: Record<AssignmentRow["state"], string> = {
 // State is conveyed by text, not colour alone.
 export function StateBadge({ state }: { state: AssignmentRow["state"] }) {
   return (
-    <Badge variant={state === "overdue" ? "destructive" : state === "due_soon" ? "default" : "secondary"}>
+    <Badge
+      variant={state === "overdue" ? "destructive" : state === "due_soon" ? "default" : "secondary"}
+    >
       {STATE_LABELS[state]}
     </Badge>
   );

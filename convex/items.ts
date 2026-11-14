@@ -24,7 +24,9 @@ type AttributeValues = Item["customAttributes"];
 const MANUAL_STATUSES = ITEM_STATUSES.filter((s) => s !== "issued" && s !== "reserved");
 const SYSTEM_STATUSES = new Set<string>(["issued", "reserved"]);
 
-export function isLowStock(item: Pick<Item, "trackingMode" | "quantityAvailable" | "minThreshold">) {
+export function isLowStock(
+  item: Pick<Item, "trackingMode" | "quantityAvailable" | "minThreshold">,
+) {
   return (
     item.trackingMode === "bulk" &&
     item.minThreshold !== undefined &&
@@ -61,14 +63,22 @@ function assertThreshold(value: number | undefined) {
   if (value !== undefined) assertQuantity(value, "Minimum threshold");
 }
 
-async function loadUsableCategory(ctx: QueryCtx, unitId: Id<"units">, categoryId: Id<"categories">) {
+async function loadUsableCategory(
+  ctx: QueryCtx,
+  unitId: Id<"units">,
+  categoryId: Id<"categories">,
+) {
   const category = await ctx.db.get(categoryId);
-  if (!category || category.unitId !== unitId) throw validation("Choose a category from this unit.");
+  if (!category || category.unitId !== unitId)
+    throw validation("Choose a category from this unit.");
   return category;
 }
 
 // Checks values against the category's attribute definitions and drops unknown keys.
-function validateCustomAttributes(category: Doc<"categories">, values: AttributeValues): AttributeValues {
+function validateCustomAttributes(
+  category: Doc<"categories">,
+  values: AttributeValues,
+): AttributeValues {
   const result: AttributeValues = {};
   for (const def of category.customAttributeDefs) {
     const value = values[def.key];
@@ -278,7 +288,11 @@ export const update = mutation({
     const categoryId = args.categoryId ?? item.categoryId;
     if (args.categoryId !== undefined || args.customAttributes !== undefined) {
       const category = await loadUsableCategory(ctx, item.unitId, categoryId);
-      if (args.categoryId !== undefined && args.categoryId !== item.categoryId && category.archived) {
+      if (
+        args.categoryId !== undefined &&
+        args.categoryId !== item.categoryId &&
+        category.archived
+      ) {
         throw validation("This category is archived.");
       }
       patch.categoryId = categoryId;
@@ -442,19 +456,13 @@ export const list = query({
         q.and(
           args.includeArchived ? q.eq(1, 1) : q.eq(q.field("archived"), false),
           args.condition === undefined ? q.eq(1, 1) : q.eq(q.field("condition"), args.condition),
-          args.restricted === undefined
-            ? q.eq(1, 1)
-            : q.eq(q.field("restricted"), args.restricted),
+          args.restricted === undefined ? q.eq(1, 1) : q.eq(q.field("restricted"), args.restricted),
           args.status === undefined ? q.eq(1, 1) : q.eq(q.field("status"), args.status),
-          args.categoryId === undefined
-            ? q.eq(1, 1)
-            : q.eq(q.field("categoryId"), args.categoryId),
+          args.categoryId === undefined ? q.eq(1, 1) : q.eq(q.field("categoryId"), args.categoryId),
           args.assigneeId === undefined
             ? q.eq(1, 1)
             : q.eq(q.field("currentAssigneeId"), args.assigneeId),
-          args.locationId === undefined
-            ? q.eq(1, 1)
-            : q.eq(q.field("locationId"), args.locationId),
+          args.locationId === undefined ? q.eq(1, 1) : q.eq(q.field("locationId"), args.locationId),
         ),
       )
       .paginate(args.paginationOpts);

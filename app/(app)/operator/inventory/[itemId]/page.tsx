@@ -126,7 +126,11 @@ function FilesCard({
                 await setImage({ itemId, storageId });
               })}
             />
-            <Button variant="outline" disabled={pending} onClick={() => imageInput.current?.click()}>
+            <Button
+              variant="outline"
+              disabled={pending}
+              onClick={() => imageInput.current?.click()}
+            >
               {imageUrl ? "Replace image" : "Upload image"}
             </Button>
             {imageUrl ? (

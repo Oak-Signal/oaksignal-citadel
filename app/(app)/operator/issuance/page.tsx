@@ -46,11 +46,9 @@ export default function IssuancePage() {
   const unitId = activeUnit?.unitId;
   const allowed = can("issuance.perform") && can("members.viewAssignments");
 
-  const members = usePaginatedQuery(
-    api.memberships.list,
-    unitId && allowed ? { unitId } : "skip",
-    { initialNumItems: 100 },
-  );
+  const members = usePaginatedQuery(api.memberships.list, unitId && allowed ? { unitId } : "skip", {
+    initialNumItems: 100,
+  });
   const issue = useMutation(api.transactions.issue);
 
   const [memberId, setMemberId] = useState("");
