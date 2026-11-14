@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 // Routes that must never render for a signed-out visitor, including by direct URL entry.
+// "/" is the public landing page (feature 002); the signed-in router now lives at /portal.
 const PROTECTED_ROUTES = [
-  "/",
+  "/portal",
   "/self-service",
   "/operator",
   "/operator/members",

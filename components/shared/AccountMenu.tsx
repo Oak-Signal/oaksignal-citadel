@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 
 // Account controls for the shell header. Sign-out records an audit entry first (best effort),
-// then ends the Clerk session and returns to /sign-in.
+// then ends the Clerk session and returns to the public home page.
 export function AccountMenu() {
   const { signOut } = useClerk();
   const recordSignOut = useMutation(api.users.recordSignOut);
@@ -17,7 +17,7 @@ export function AccountMenu() {
     } catch {
       // Never block sign-out on an audit failure.
     }
-    await signOut({ redirectUrl: "/sign-in" });
+    await signOut({ redirectUrl: "/" });
   }
 
   return (

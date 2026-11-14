@@ -93,7 +93,7 @@ export const setRoles = mutation({
       type: "membership.roles_changed",
       title: "Your roles changed",
       body: "A unit administrator updated your roles.",
-      link: "/",
+      link: "/portal",
     });
   },
 });

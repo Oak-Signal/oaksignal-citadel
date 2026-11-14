@@ -25,7 +25,7 @@ export default function AcceptInvitePage() {
     setError(null);
     try {
       await accept({ membershipId });
-      router.replace("/");
+      router.replace("/portal");
     } catch (caught) {
       setError(getErrorMessage(caught));
       setPending(null);

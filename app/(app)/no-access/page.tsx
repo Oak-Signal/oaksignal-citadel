@@ -52,7 +52,7 @@ export default function NoAccessPage() {
               <CardDescription>{message.description}</CardDescription>
             </CardHeader>
             <CardContent className="flex items-center justify-between gap-3">
-              <Link href="/" className={buttonVariants({ variant: "outline" })}>
+              <Link href="/portal" className={buttonVariants({ variant: "outline" })}>
                 Check again
               </Link>
               <AccountMenu />
