@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
+import { FaqSection } from "@/components/site/FaqSection";
+import { FeatureGrid } from "@/components/site/FeatureGrid";
 import { Hero } from "@/components/site/Hero";
+import { HowItWorks } from "@/components/site/HowItWorks";
+import { TrustSection } from "@/components/site/TrustSection";
 import { buttonVariants } from "@/components/ui/button";
 import { site } from "@/lib/site-content";
 import { pageMetadata } from "@/lib/site-metadata";
@@ -63,7 +67,10 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      {/* US3 sections go here, in order: Features, How it works, Trust, FAQ (FR-007). */}
+      <FeatureGrid />
+      <HowItWorks />
+      <TrustSection />
+      <FaqSection />
       <ClosingCallToAction />
     </>
   );
