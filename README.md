@@ -25,8 +25,9 @@ life of an asset.
 Each unit's data is isolated from every other unit, and every action a person can take is
 controlled by the role they hold in their unit.
 
-> **Project status:** early development. The access-control foundation is complete and deployable;
-> the inventory features listed under [Roadmap](#-roadmap) are being built story by story.
+> **Project status:** in development. Access control, the inventory catalogue, issuance and
+> returns, cadet self-service and the audit trail are built; dashboards and reports, and storage
+> locations with stocktaking, are next (see [Roadmap](#-roadmap)).
 
 ## ✨ Features
 
@@ -35,12 +36,22 @@ controlled by the role they hold in their unit.
 | **Secure access**             | Sign-in, unit-scoped roles and permissions, invitations, separate portals per role   | ✅ Built   |
 | **Unit onboarding**           | Platform-managed unit provisioning, first-administrator verification, support grants | ✅ Built   |
 | **Audit foundation**          | Append-only audit log written in the same transaction as every change                | ✅ Built   |
-| **Inventory catalogue**       | Serialized assets (radios, laptops) and bulk or consumable stock with thresholds     | 🔜 Planned |
-| **Issuance and returns**      | Recorded issue and return transactions with condition and responsible staff          | 🔜 Planned |
-| **Cadet self-service**        | Cadets view what they hold and request equipment                                     | 🔜 Planned |
-| **Audit trail views**         | Searchable accountability history                                                    | 🔜 Planned |
+| **Inventory catalogue**       | Serialized assets (radios, laptops) and bulk or consumable stock with thresholds     | ✅ Built   |
+| **Issuance and returns**      | Recorded issue and return transactions with condition and responsible staff          | ✅ Built   |
+| **Cadet self-service**        | Cadets view what they hold, request equipment, and report damaged or missing items   | ✅ Built   |
+| **Audit trail views**         | Searchable accountability history and correcting transactions                        | ✅ Built   |
 | **Dashboards and reports**    | Stock levels, overdue items, low-stock notifications, exports                        | 🔜 Planned |
 | **Locations and stocktaking** | Multiple storage locations, maintenance, stocktakes                                  | 🔜 Planned |
+
+The same statuses are shown on the public site and kept in one place: `lib/site-content.ts`.
+
+### Public site
+
+Signed-out visitors to `/` see a public landing page with features, how it works, trust and
+principles, and an FAQ, plus `/contact`, and draft `/terms` and `/privacy` pages. It is static,
+loads no Clerk or Convex code, and reads no unit data. Signed-in members who open `/` are sent
+straight to their portal. Units are set up on request through the Contact page; there is no open
+sign-up.
 
 ### Two portals, one set of rules
 
@@ -111,13 +122,14 @@ npm install
 cp .env.example .env.local   # then fill in the values below
 ```
 
-| Variable                            | Where it comes from                                |
-| ----------------------------------- | -------------------------------------------------- |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk dashboard → API keys                         |
-| `CLERK_SECRET_KEY`                  | Clerk dashboard → API keys (also set it in Convex) |
-| `CLERK_JWT_ISSUER_DOMAIN`           | Clerk Frontend API URL (also set it in Convex)     |
-| `NEXT_PUBLIC_CONVEX_URL`            | Printed by `npx convex dev`                        |
-| `CONVEX_DEPLOYMENT`                 | Written by `npx convex dev`                        |
+| Variable                            | Where it comes from                                                                                                  |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk dashboard → API keys                                                                                           |
+| `CLERK_SECRET_KEY`                  | Clerk dashboard → API keys (also set it in Convex)                                                                   |
+| `CLERK_JWT_ISSUER_DOMAIN`           | Clerk Frontend API URL (also set it in Convex)                                                                       |
+| `NEXT_PUBLIC_CONVEX_URL`            | Printed by `npx convex dev`                                                                                          |
+| `CONVEX_DEPLOYMENT`                 | Written by `npx convex dev`                                                                                          |
+| `NEXT_PUBLIC_SITE_URL`              | Public site origin for sitemap, robots and sharing previews (optional; falls back to the Vercel URL, then localhost) |
 
 In the **Convex dashboard** (Settings → Environment Variables), set `CLERK_JWT_ISSUER_DOMAIN` and
 `CLERK_SECRET_KEY`. In Clerk, enable the Convex integration and add `email` and `name` to the
@@ -158,18 +170,19 @@ Delivery follows prioritized user stories, each independently testable and deplo
 
 - [x] **Foundations**: backend, authentication, authorization, audit, design system, CI
 - [x] **US1** Secure access with unit-scoped roles and permissions _(P1)_
-- [ ] **US2** Inventory catalogue for serialized assets and bulk stock _(P1)_
-- [ ] **US3** Equipment issuance and returns _(P1)_
-- [ ] **US4** Cadet self-service portal and equipment requests _(P2)_
-- [ ] **US5** Audit trail and accountability _(P2)_
+- [x] **US2** Inventory catalogue for serialized assets and bulk stock _(P1)_
+- [x] **US3** Equipment issuance and returns _(P1)_
+- [x] **US4** Cadet self-service portal and equipment requests _(P2)_
+- [x] **US5** Audit trail and accountability _(P2)_
 - [ ] **US6** Dashboards, reports and notifications _(P3)_
 - [ ] **US7** Storage locations, maintenance and stocktaking _(P3)_
+- [x] **Public site**: landing page, contact, and draft terms and privacy pages
 
 ## 📁 Project Structure
 
 ```text
-app/           Next.js routes: /operator, /self-service, /platform, onboarding pages
-components/    Shared UI (shell, portal guards, tables, dialogs) and shadcn/ui primitives
+app/           (site)/ public pages (/, /contact, /terms, /privacy); (app)/ portals and sign-in
+components/    shared/ app UI, site/ public-site UI, ui/ shadcn/ui primitives
 convex/        Schema, queries, mutations and the authorization, audit and validation core
 lib/           Shared types, validation, portal routing rules and utilities
 tests/         convex/ (backend), components/ (UI), e2e/ (Playwright)
@@ -206,8 +219,9 @@ Never commit secrets. A pre-commit hook and CI both scan for them.
 
 ## 🔒 Security
 
-Please do not report vulnerabilities in public issues. Contact the maintainers through the
-[OakSignal organization](https://github.com/Oak-Signal).
+Please do not report vulnerabilities in public issues. Report them privately by email to
+[contact.oaksignal@gmail.com](mailto:contact.oaksignal@gmail.com) with what you found and how to
+reproduce it.
 
 ## 📄 License
 

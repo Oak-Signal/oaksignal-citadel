@@ -1,0 +1,57 @@
+// Plain-language names for audit actions and record types. Unknown values fall back to the raw
+// string so a new action is still visible before it gets a label.
+export const ACTION_LABELS: Record<string, string> = {
+  "auth.sign_in": "Signed in",
+  "auth.sign_out": "Signed out",
+  "auth.permission_denied": "Permission denied",
+  "unit.create": "Unit created",
+  "unit.update_settings": "Unit settings changed",
+  "membership.invite": "Member invited",
+  "membership.accept": "Invitation accepted",
+  "membership.set_roles": "Roles changed",
+  "membership.deactivate": "Member deactivated",
+  "membership.appoint_admin": "Administrator appointed",
+  "member.anonymize": "Member anonymized",
+  "role.update": "Role permissions changed",
+  "role.reset": "Role permissions reset",
+  "support_grant.create": "Support access granted",
+  "support_grant.revoke": "Support access revoked",
+  "category.create": "Category created",
+  "category.update": "Category changed",
+  "item.create": "Item created",
+  "item.update": "Item changed",
+  "item.archive": "Item archived",
+  "item.restore": "Item restored",
+  "item.issue": "Item issued",
+  "item.return": "Item returned",
+  "item.image.set": "Item image set",
+  "item.image.remove": "Item image removed",
+  "item.attachment.add": "Attachment added",
+  "item.attachment.remove": "Attachment removed",
+  "stock.receive": "Stock received",
+  "stock.adjust": "Stock adjusted",
+  "transaction.correct": "Transaction corrected",
+  "request.submit": "Request submitted",
+  "request.cancel": "Request cancelled",
+  "request.decide": "Request decided",
+  "request.fulfil": "Request fulfilled",
+  "incident.report": "Incident reported",
+  "incident.status": "Incident status changed",
+};
+
+export const ENTITY_LABELS: Record<string, string> = {
+  items: "Items",
+  transactions: "Transactions",
+  memberships: "Members",
+  users: "People",
+  units: "Unit",
+  requests: "Requests",
+  incidents: "Incidents",
+  categories: "Categories",
+  roleDefinitions: "Roles",
+  supportGrants: "Support access",
+  permission: "Permissions",
+};
+
+export const actionLabel = (action: string) => ACTION_LABELS[action] ?? action;
+export const entityLabel = (entityType: string) => ENTITY_LABELS[entityType] ?? entityType;

@@ -102,4 +102,14 @@
   html {
     @apply font-sans;
   }
+  /* In-page section links clear the public site's sticky header (h-16) with a little room. */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }

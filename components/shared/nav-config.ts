@@ -109,7 +109,6 @@ export const NAV_CONFIG: NavConfig = {
       group: "Insights",
       permission: "audit.view",
       description: "Who changed what, and when.",
-      available: false,
     },
     {
       label: "Settings",

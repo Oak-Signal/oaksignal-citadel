@@ -1,9 +1,12 @@
 # Design system
 
 - **Brand.** CITADEL wordmark and the castle mark in [`public/citadel-logo.svg`](../public/citadel-logo.svg). Theme: "Fleet Command" - light gray-blue canvas, navy-tinted sidebar with a navy active pill, deep-blue primary, steel-teal (`signal`) accents, oak green (`success`). `destructive` is a deeper red used only for destructive actions.
-- **Typography.** Inter (sans) for the interface, Geist Mono for codes and tags. Loaded in `app/layout.tsx` and mapped to `--font-sans` and `--font-mono` in `app/globals.css`.
+- **Typography.** Inter (sans) for the interface, Geist Mono for codes and tags. Loaded in `app/(app)/layout.tsx` and `app/(site)/layout.tsx` and mapped to `--font-sans` and `--font-mono` in `app/globals.css`.
 - **Tokens.** Colour, radius, and sidebar tokens are CSS variables in `app/globals.css` (light theme only), including `success`, `warning` and `info` status tokens (see `Badge` variants), exposed to Tailwind through `@theme inline`. Use tokens (`bg-primary`, `text-muted-foreground`), not raw colours.
 - **Contrast.** Text must meet WCAG AA (4.5:1). Avoid `text-destructive` or muted text on tinted backgrounds; the axe test enforces this.
 - **Components.** Shared pieces in `components/shared/`: `AppShell`, `AccountMenu`, `PageHeader`, `DataTable`, `FormField`, `ConfirmDialog`, `PermissionGate`, `Loading`, `EmptyState`, `ErrorState`, `ErrorBoundary`.
-- **Responsive.** Sidebar from `md` up, a drawer with a menu button below it; no horizontal overflow at 375px.
+- **Public site.** Components in `components/site/`: `SiteHeader` (sticky header, centred links, phone menu in a `Sheet`), `SiteFooter` (disclaimer, link columns, contact), `Hero` (with a decorative, captioned product preview), `SectionHeading`, `FeatureGrid`, `HowItWorks`, `TrustSection`, `FaqSection`, `LegalPage` and `DraftNotice` (Terms and Privacy drafts), `ExternalLink`, `MailLink`, and `GitHubMark` (lucide-react has no brand icons). They use the same tokens, fonts, `Card`, `Badge`, `Button`, `Separator`, and the same "Skip to main content" link as the app shell, and all copy comes from `lib/site-content.ts`.
+- **Accordion.** `components/ui/accordion.tsx` (shadcn/ui on Base UI) is used for the FAQ in multiple-open mode. Its animations turn off with `motion-reduce`.
+- **Motion.** Smooth in-page scrolling is enabled only under `prefers-reduced-motion: no-preference`, and `section[id]` elements get a `scroll-margin-top` that clears the sticky public header.
+- **Responsive.** Sidebar from `md` up, a drawer with a menu button below it; no horizontal overflow at 360px (public site) or 375px (app shell).
 - **Preview.** `/design-preview` (development only) renders the shell and components for review and for the accessibility tests.

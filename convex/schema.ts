@@ -177,7 +177,8 @@ export default defineSchema({
   })
     .index("by_unit_and_time", ["unitId", "occurredAt"])
     .index("by_unit_and_member", ["unitId", "memberId"])
-    .index("by_unit_and_requestKey", ["unitId", "requestKey"]),
+    .index("by_unit_and_requestKey", ["unitId", "requestKey"])
+    .index("by_unit_and_corrects", ["unitId", "correctsTransactionId"]),
 
   transactionLines: defineTable({
     transactionId: v.id("transactions"),

@@ -17,7 +17,7 @@ export function AccessDenied({
     >
       <h1 className="text-xl font-semibold">{title}</h1>
       <p className="text-sm text-muted-foreground">{description}</p>
-      <Link href="/" className={buttonVariants({ variant: "outline" })}>
+      <Link href="/portal" className={buttonVariants({ variant: "outline" })}>
         Go to my home page
       </Link>
     </div>
